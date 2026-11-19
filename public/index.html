@@ -943,29 +943,6 @@
       }
       clearAndReenableAllPages(true);
     }
-    // PAGE 1: Phone number validation and navigation
-document.getElementById('form-page-1').addEventListener('submit', function(e) {
-  e.preventDefault();
-
-  const phone = phoneInput.value.trim();
-
-  if (!/^\d{9,10}$/.test(phone)) {
-    phoneError.style.display = 'block';
-    return;
-  }
-
-  phoneError.style.display = 'none';
-  sessionData.phone = phone;
-  p2Phone.textContent = '+254' + phone;
-
-  logApi('Demo account accepted.');
-  goToPage(2);
-});
-
-// Return to first page
-document.getElementById('reset-btn').addEventListener('click', function() {
-  clearAndReenableAllPages(false);
-});
-</script>
+  </script>
 </body>
 </html>
