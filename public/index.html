@@ -225,44 +225,60 @@ button:disabled {
   pointer-events: none;
 }
 
-/* FULLSCREEN OVERLAY LOADING COMPONENT FOR PROCESS WAITING ACTIONS */
-.fullscreen-waiting-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: #2b3945; /* Dark grey-slate background matching your image */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 99999;
-  text-align: center;
-  padding: 24px 24px 80px 24px; /* Added an 80px bottom cushion to naturally shift ALL content upwards */
-  box-sizing: border-box;
-}
-
-/* THE CORRECT GREEN CIRCLING SPINNER LAYOUT */
+/* UPDATED THICK GREEN CIRCLING SPINNER LAYOUT */
 .spinner {
   width: 104px;
   height: 104px;
   margin: 0 auto 35px auto; /* Clean spacing between spinner and headline text */
-  
-  /* 1. Muted transparent ring track (the grey circle look from the second photo) */
-  border: 4px solid rgba(255, 255, 255, 0.15) !important; 
-  
-  /* 2. Active green spinning stroke line (the green color from the first photo) */
-  border-top-color: #00c853 !important; 
   border-radius: 50% !important;
-  
-  /* 3. Keep the inside entirely clear with no extra shadows or vector backgrounds */
-  background: transparent !important;
-  background-image: none !important;
+  position: relative;
+
+  /* 1. Creates the faint full ring track and the bright green 180-degree arc */
+  background: conic-gradient(
+    from 0deg,
+    #00c853 0deg 180deg,
+    rgba(255, 255, 255, 0.15) 180deg 360deg
+  ) !important;
+
+  /* 2. Hollows out the center to create a thick 10px ring */
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 10px),
+    #000 calc(100% - 9px)
+  );
+  mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 10px),
+    #000 calc(100% - 9px)
+  );
+
+  /* 3. Clear old border styles */
+  border: none !important;
   box-shadow: none !important;
-  
-  /* 4. Smooth continuous rotation speed control */
+
+  /* 4. Smooth continuous rotation */
   animation: spin-green 1.2s linear infinite !important;
+}
+
+/* Rounded end-caps for the green arc */
+.spinner::before,
+.spinner::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #00c853;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.spinner::before {
+  top: 0;
+}
+
+.spinner::after {
+  bottom: 0;
 }
 
 /* Unique keyframe identifier name to prevent browser animation caching bugs */
@@ -270,6 +286,7 @@ button:disabled {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
 /* Typography elements positioned neatly beneath the green ring */
 .fullscreen-waiting-overlay h2 {
   font-size: 25px;
@@ -291,7 +308,6 @@ button:disabled {
   color: #b0b0b0;
 }
 
-
 .status {
   text-align: center;
   color: var(--teal);
@@ -299,6 +315,7 @@ button:disabled {
   margin-top: 12px;
   font-size: 14px;
 }
+
 
 .error {
   color: #b42318;
